@@ -1,7 +1,12 @@
-function App(){
+import properties from "./data/properties";
+
+function App() {
   return (
     <div>
-      <hi> AI Property Search </hi>
+      <h1>AI Property Search</h1>
+
     </div>
-  )
+  );
 }
+
+export default App;
