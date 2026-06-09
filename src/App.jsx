@@ -8,12 +8,15 @@ import "./App.css";
 
 function App() {
   // Search, chip filter, and derived filteredProperties
-  const {
-    query, setQuery,
-    activeChip, setActiveChip,
-    handleSearch,
-    filteredProperties,
-  } = usePropertyFilter();
+const {
+  query,
+  setQuery,
+  activeChip,
+  handleChipSelect,
+  handleSearch,
+  filteredProperties,
+  searchedQuery,
+} = usePropertyFilter();
 
   // Modal state
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -32,7 +35,10 @@ function App() {
         <h1 className="app__title">AI Property Search</h1>
         <p className="app__subtitle">Find your perfect home</p>
         <SearchBar query={query} setQuery={setQuery} onSearch={handleSearch} />
-        <FilterChips activeChip={activeChip} onChipSelect={setActiveChip} />
+        <FilterChips
+  activeChip={activeChip}
+  onChipSelect={handleChipSelect}
+/>
       </header>
 
       <main className="app__main">
@@ -48,6 +54,7 @@ function App() {
       {selectedProperty && (
         <PropertyModal
           property={selectedProperty}
+          query={searchedQuery}
           onClose={handleCloseModal}
         />
       )}

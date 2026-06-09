@@ -82,6 +82,76 @@ app.post("/api/search", async (req, res) => {
   }
 });
 
+app.post("/api/property-summary", async (req, res) => {
+  const { query, property } = req.body;
+
+  if (!query?.trim() || !property) {
+    return res.status(400).json({ error: "Query and property are required." });
+  }
+
+  if (!process.env.OPENROUTER_API_KEY) {
+    return res.status(500).json({ error: "Unable to generate summary." });
+  }
+
+  const propertyDetails = [
+    `BHK: ${property.bhk}`,
+    `Area: ${property.area} sq ft`,
+    `Location: ${property.location}`,
+    `Price: ${property.price} Lac`,
+    `Features: ${(property.features || []).join(", ")}`,
+  ].join("\n");
+
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a real estate assistant.\n\n" +
+              "Given:\n" +
+              "* The user's property search query\n" +
+              "* A specific property\n\n" +
+              "Generate a concise 2-3 sentence explanation of why this property matches the user's search.\n\n" +
+              "Be specific.\n" +
+              "Reference relevant features.\n" +
+              "Do not invent facts.\n" +
+              "Do not use bullet points.",
+          },
+          {
+            role: "user",
+            content:
+              `Original search query: ${query}\n\n` +
+              `Selected property:\n${propertyDetails}`,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: "Unable to generate summary." });
+    }
+
+    const data = await response.json();
+    const summary = data.choices?.[0]?.message?.content?.trim();
+
+    if (!summary) {
+      return res.status(502).json({ error: "Unable to generate summary." });
+    }
+
+    return res.json({ summary });
+  } catch (err) {
+    console.error("OpenRouter summary error:", err);
+    return res.status(500).json({ error: "Unable to generate summary." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

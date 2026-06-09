@@ -1,7 +1,39 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { fetchAIPropertySummary } from "../services/openrouter";
 import "./PropertyModal.css";
 
-function PropertyModal({ property, onClose }) {
+function PropertyModal({ property, query, onClose }) {
+  const [summary, setSummary] = useState("");
+  const [summaryError, setSummaryError] = useState("");
+  const [isSummaryLoading, setIsSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function generateSummary() {
+      setSummary("");
+      setSummaryError("");
+      setIsSummaryLoading(true);
+
+      try {
+        const result = await fetchAIPropertySummary(query, property);
+        if (!isCancelled) setSummary(result);
+      } catch {
+        if (!isCancelled) {
+          setSummaryError("Unable to generate an AI match summary right now.");
+        }
+      } finally {
+        if (!isCancelled) setIsSummaryLoading(false);
+      }
+    }
+
+    generateSummary();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [property, query]);
+
   // Close on Escape key
   useEffect(() => {
     function handleKeyDown(e) {
@@ -59,6 +91,19 @@ function PropertyModal({ property, onClose }) {
           </p>
 
           <p className="modal__price">₹{property.price} Lac</p>
+
+          <div className="modal__divider" />
+
+          <section className="modal__summary">
+            <h3 className="modal__summary-heading">AI Match Summary</h3>
+            {isSummaryLoading && (
+              <p className="modal__summary-status">Generating personalized summary...</p>
+            )}
+            {summaryError && (
+              <p className="modal__summary-error">{summaryError}</p>
+            )}
+            {summary && <p className="modal__summary-text">{summary}</p>}
+          </section>
 
           <div className="modal__divider" />
 

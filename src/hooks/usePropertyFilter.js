@@ -1,13 +1,18 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import properties from "../data/properties";
 import { fetchAISearchResult } from "../services/openrouter";
 
 function usePropertyFilter() {
-  const [query, setQuery]                   = useState("");
+  const initialQuery = useRef(
+    new URLSearchParams(window.location.search).get("q") || ""
+  ).current;
+  const [query, setQuery]                   = useState(initialQuery);
   const [activeChip, setActiveChip]         = useState("all");
   const [filteredProperties, setFilteredProperties] = useState(properties);
   const [isLoading, setIsLoading]           = useState(false);
   const [searchError, setSearchError]       = useState(null);
+  const [searchedQuery, setSearchedQuery]   = useState("");
+  const hasRunInitialSearch = useRef(false);
 
   // --- chip filter (applied on top of whatever search produced) ---
   function applyChip(list, chip) {
@@ -56,7 +61,14 @@ function usePropertyFilter() {
 
   // --- main search handler ---
   const handleSearch = useCallback(async () => {
-    if (!query.trim()) {
+    const trimmedQuery = query.trim();
+
+    const searchUrl = trimmedQuery
+      ? `${window.location.pathname}?q=${encodeURIComponent(trimmedQuery)}${window.location.hash}`
+      : `${window.location.pathname}${window.location.hash}`;
+    window.history.replaceState({}, "", searchUrl);
+
+    if (!trimmedQuery) {
       setFilteredProperties(applyChip(properties, activeChip));
       setSearchError(null);
       return;
@@ -64,6 +76,7 @@ function usePropertyFilter() {
 
     setIsLoading(true);
     setSearchError(null);
+    setSearchedQuery(trimmedQuery);
 
     let baseResults;
 
@@ -79,6 +92,13 @@ function usePropertyFilter() {
     setFilteredProperties(applyChip(baseResults, activeChip));
     setIsLoading(false);
   }, [query, activeChip]);
+
+  useEffect(() => {
+    if (initialQuery && !hasRunInitialSearch.current) {
+      hasRunInitialSearch.current = true;
+      handleSearch();
+    }
+  }, [handleSearch, initialQuery]);
 
   // When chip changes, re-apply it to the current results without a new API call
   function handleChipSelect(chip) {
@@ -98,6 +118,7 @@ function usePropertyFilter() {
     filteredProperties,
     isLoading,
     searchError,
+    searchedQuery,
     handleSearch,
   };
 }
