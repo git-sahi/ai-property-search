@@ -83,3 +83,10 @@ body {
     font-size: 1.75rem;
   }
 }
+
+.results-count {
+  max-width: 1200px;
+  margin: 0 auto 1rem;
+  color: #d4af37;
+  font-size: 1rem;
+}

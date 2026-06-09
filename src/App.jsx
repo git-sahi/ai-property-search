@@ -36,6 +36,9 @@ function App() {
       </header>
 
       <main className="app__main">
+        <div className="results-count">
+          Showing {filteredProperties.length} properties
+        </div>
         <PropertyGrid
           filteredProperties={filteredProperties}
           onSelectProperty={handleSelectProperty}
