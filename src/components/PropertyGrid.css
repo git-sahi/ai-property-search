@@ -14,7 +14,36 @@
   margin: 0 auto;
 }
 
-/* Tablet */
+/* ── Empty State ───────────────────────────────────────────────── */
+
+.property-grid__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.property-grid__empty-icon {
+  font-size: 3rem;
+  color: #2e2e36;
+  margin-bottom: 20px;
+  line-height: 1;
+}
+
+.property-grid__empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f0ece3;
+  margin-bottom: 8px;
+}
+
+.property-grid__empty-subtitle {
+  font-size: 0.9rem;
+  color: #6b6763;
+}
+
 @media (max-width: 1024px) {
   .property-grid {
     grid-template-columns: repeat(2, 1fr);

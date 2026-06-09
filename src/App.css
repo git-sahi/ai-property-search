@@ -63,6 +63,15 @@ body {
   flex: 1;
 }
 
+/* ── No Results ────────────────────────────────────────────────── */
+
+.app__no-results {
+  text-align: center;
+  color: #6b6763;
+  font-size: 0.95rem;
+  padding: 60px 24px;
+}
+
 /* ── Responsive ────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
