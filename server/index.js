@@ -35,10 +35,17 @@ app.post("/api/search", async (req, res) => {
           {
             role: "system",
             content:
-              "You are a helpful real estate assistant. " +
-              "Given a natural language property search query, respond with a concise, " +
-              "friendly summary of what the user is looking for. " +
-              "Keep responses under 3 sentences.",
+              "You are a real estate search assistant. " +
+              "Extract structured information from the user's property search query. " +
+              "Respond with ONLY a valid JSON object — no markdown, no code fences, no explanation. " +
+              "Use exactly these fields:\n" +
+              "  intent         (string)  – e.g. 'family', 'investment', 'bachelor'\n" +
+              "  preferred_bhk  (number)  – bedroom count, or null if unspecified\n" +
+              "  budget         (number)  – amount in rupees, or null if unspecified\n" +
+              "  location       (string)  – area/sector name, or null if unspecified\n" +
+              "  required_features (array of strings) – amenities or keywords mentioned\n" +
+              "Budget conversion: '1 lac' = 100000, '1 crore' = 10000000.\n" +
+              "If a field is not mentioned, set it to null or [] for required_features.",
           },
           {
             role: "user",
@@ -54,9 +61,20 @@ app.post("/api/search", async (req, res) => {
     }
 
     const data = await response.json();
-    const message = data.choices?.[0]?.message?.content ?? "";
+    const raw = data.choices?.[0]?.message?.content ?? "";
 
-    return res.json({ message });
+    // Strip markdown fences if the model wraps output despite instructions
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch {
+      console.error("Failed to parse model response as JSON:", raw);
+      return res.status(502).json({ error: "Model returned invalid JSON.", raw });
+    }
+
+    return res.json({ result: parsed });
 
   } catch (err) {
     console.error("OpenRouter error:", err);
