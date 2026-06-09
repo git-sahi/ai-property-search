@@ -1,0 +1,76 @@
+/* ── Reset & Base ──────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #111115;
+  color: #f0ece3;
+  font-family: "Georgia", serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── App Layout ────────────────────────────────────────────────── */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Header ────────────────────────────────────────────────────── */
+
+.app__header {
+  text-align: center;
+  padding: 48px 24px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.app__title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f0ece3;
+}
+
+/* gold underline accent on the last word */
+.app__title::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 3px;
+  background: #c9a84c;
+  border-radius: 2px;
+  margin: 10px auto 0;
+}
+
+.app__subtitle {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  color: #9e9a94;
+  letter-spacing: 0.03em;
+}
+
+/* ── Main ──────────────────────────────────────────────────────── */
+
+.app__main {
+  flex: 1;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .app__header {
+    padding: 36px 16px 24px;
+  }
+
+  .app__title {
+    font-size: 1.75rem;
+  }
+}
