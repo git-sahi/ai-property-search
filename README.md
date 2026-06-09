@@ -1,16 +1,19 @@
-# React + Vite
+## Prompt Design Notes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The query parsing system was designed to convert natural language property search requests into structured JSON that could be directly used for property filtering. Instead of generating conversational responses, the model extracts key search parameters such as property type (BHK), location, budget, and required amenities.
 
-Currently, two official plugins are available:
+Early prompt iterations were more open-ended and asked the model to interpret the user's intent. While the responses were generally accurate, they often included explanations, additional text, or inconsistent formatting, making them difficult to parse programmatically.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+To improve reliability, the prompt was redesigned around a fixed JSON schema with predefined fields:
 
-## React Compiler
+* `intent`
+* `preferred_bhk`
+* `budget`
+* `location`
+* `required_features`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The model was explicitly instructed to return only valid JSON with no additional commentary. This significantly reduced parsing errors and ensured consistent output across different query styles and phrasings.
 
-## Expanding the ESLint configuration
+A lightweight model from OpenRouter's free tier was selected because the task primarily involves information extraction rather than complex reasoning. For this use case, prompt structure, response consistency, and latency were more important than model size or advanced reasoning capabilities.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The final prompt design prioritizes structured output, predictable formatting, and seamless integration with the frontend filtering logic, resulting in a more robust and reliable property search experience.
